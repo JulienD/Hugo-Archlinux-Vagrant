@@ -1,0 +1,11 @@
+
+####
+# Apache
+apache_vhost:
+- { vhost: 'example-a.local', docroot: 'example_a' }
+- { vhost: 'example-b.local', docroot: 'example_b' }
+
+####
+# mysql
+mysql_db:
+  - { name: 'example_a' }

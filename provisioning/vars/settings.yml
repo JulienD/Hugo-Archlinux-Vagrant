@@ -1,0 +1,8 @@
+# Settings that are applied to the templates. This file should be copied to
+# the base folder of the play and renamed settings.yml, then modified to suit
+# your needs.
+
+---
+####
+# Go
+go_path: '/home/vagrant/data/go'

@@ -1,0 +1,70 @@
+##
+# Ansible playbook for setting up a LAMP development server on Ubuntu 12.04.
+#
+---
+- hosts: all
+  user: vagrant
+  sudo: yes
+
+  vars_files:
+    # Contains variables an settings required for installing the environement
+    - vars/settings.yml
+    # Contains configuration to deploy on the machine such as Apache vhost, mysql databases...
+    - vars/configuration.yml
+
+  tasks:
+    ##
+    # Installs NTP.
+    #
+    - name: Common | Install NTP
+      pacman: name=ntp state=installed
+
+    - name: Common | Install ntp.conf
+      copy: src=templates/ntp.conf dest=/etc/ntp.conf owner=root group=root mode=0644
+
+    ##
+    # Update the box and install common softwares.
+    #
+    - name: Common | Common software installation.
+      pacman: pkg={{ item }} state=installed
+      with_items:
+        - htop
+        - curl
+        - unzip
+        - vim
+
+    ##
+    # GIT Setup.
+    #
+    - name: Git | Install git base packages
+      pacman: name=git-core state=installed
+
+    ##
+    # Go Lang Setup.
+    #
+    - name: Go | Install Go base packages
+      pacman: name=go state=installed
+
+    - name: Go | Create directory for GOPATH
+      file: path={{ go_path }} state=directory
+
+    - name: Go | Set GOPATH for all users
+      copy: src=templates/go-path.sh dest=/etc/profile.d
+
+    ##
+    # HuGo Setup.
+    #
+    - name: Hugo | Download Hugo
+      get_url: url=https://github.com/spf13/hugo/releases/download/v0.12/hugo_0.12_linux_amd64.tar.gz dest=/tmp/hugo_0.12_linux_amd64.tar.gz validate_certs=no
+
+    - name: Hugo | Untar Hugo
+      command: tar xzf /tmp/hugo_0.12_linux_amd64.tar.gz -C /tmp/
+
+    - name: Hugo | Move binary file
+      command: mv /tmp/hugo_0.12_linux_amd64/hugo_0.12_linux_amd64 /usr/local/bin/hugo
+
+    ##
+    # Restart services
+    #
+    #- name: Restart NTP
+    #  service: name=ntp state=restarted
